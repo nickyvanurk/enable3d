@@ -77,7 +77,7 @@ class AmmoPhysics extends EventEmitter {
   protected tmpBtVector3: Ammo.btVector3
   protected tmpBtQuaternion: Ammo.btQuaternion
 
-  public physicsWorld: Ammo.btDiscreteDynamicsWorld
+  public physicsWorld: Ammo.btSoftRigidDynamicsWorld
   protected dispatcher: Ammo.btCollisionDispatcher
   protected debugDrawer: DebugDrawer
   private convexBreaker: any
@@ -207,11 +207,20 @@ class AmmoPhysics extends EventEmitter {
   protected setupPhysicsWorld() {
     const g = this.gravity
 
-    const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration()
+    // const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration()
+    const collisionConfiguration = new Ammo.btSoftBodyRigidBodyCollisionConfiguration()
     const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration)
     const broadphase = new Ammo.btDbvtBroadphase()
     const solver = new Ammo.btSequentialImpulseConstraintSolver()
-    this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration)
+    const softBodySolver = new Ammo.btDefaultSoftBodySolver()
+    this.physicsWorld = new Ammo.btSoftRigidDynamicsWorld(
+      dispatcher,
+      broadphase,
+      solver,
+      collisionConfiguration,
+      softBodySolver
+    )
+    // this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration)
     this.physicsWorld.setGravity(new Ammo.btVector3(g.x, g.y, g.z))
     this.dispatcher = dispatcher
     this.tmpTrans = new Ammo.btTransform()

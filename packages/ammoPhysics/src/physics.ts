@@ -55,8 +55,6 @@ export { Types }
 // Export THREE.Clock
 export { Clock } from './lib/Clock'
 
-interface AmmoPhysics {}
-
 class AmmoPhysics extends EventEmitter {
   public tmpTrans: Ammo.btTransform
   public factory: Factories
@@ -76,7 +74,7 @@ class AmmoPhysics extends EventEmitter {
   protected tmpBtVector3: Ammo.btVector3
   protected tmpBtQuaternion: Ammo.btQuaternion
 
-  public physicsWorld: Ammo.btSoftRigidDynamicsWorld | Ammo.btDiscreteDynamicsWorld
+  public physicsWorld: Ammo.btSoftRigidDynamicsWorld
   protected dispatcher: Ammo.btCollisionDispatcher
   protected debugDrawer: DebugDrawer
   private convexBreaker: any
@@ -228,6 +226,7 @@ class AmmoPhysics extends EventEmitter {
         softBodySolver
       )
     } else {
+      // @ts-ignore
       this.physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration)
     }
 

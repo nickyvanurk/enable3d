@@ -127,7 +127,7 @@ class MainScene extends Scene3D {
 }
 
 const startProject = () => {
-  PhysicsLoader('/lib', () => new Project({ scenes: [MainScene] }))
+  PhysicsLoader('/lib', () => new Project({ scenes: [MainScene], softBodies: true }))
 }
 
 export default startProject

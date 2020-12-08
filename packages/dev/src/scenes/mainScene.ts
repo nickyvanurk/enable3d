@@ -8,11 +8,14 @@ export default class MainScene extends Scene3D {
   }
 
   init() {
-    this.accessThirdDimension({ enableXR: false, antialias: false })
+    this.accessThirdDimension({ enableXR: false, antialias: false, softBodies: true })
   }
 
   create() {
     this.third.warpSpeed('-orbitControls')
+
+    // @ts-ignore
+    this.third.physics.physicsWorld.getWorldInfo()
 
     let rect = this.add.rectangle(50, 50, 50, 50, 0xff00ff)
     rect.setInteractive()

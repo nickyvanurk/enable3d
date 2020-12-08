@@ -31,7 +31,7 @@ const MainScene = () => {
   light.position.multiplyScalar(1.3)
 
   // physics
-  const physics = new AmmoPhysics(scene)
+  const physics = new AmmoPhysics(scene, { softBodies: true })
   physics.debug?.enable()
   const { factory } = physics
 

@@ -1,62 +1,87 @@
 import { Scene3D, ExtendedObject3D, THREE } from '@enable3d/phaser-extension'
-import { ClosestRaycaster, AllHitsRaycaster } from '@enable3d/ammo-physics'
-import { TextureLoader } from '../../../common/node_modules/@enable3d/three-wrapper/dist'
 
-export default class MainScene extends Scene3D {
-  constructor() {
-    super({ key: 'MainScene' })
-  }
+class MainScene extends Scene3D {
+  box: ExtendedObject3D
+  rect: Phaser.GameObjects.Rectangle
+  initialDistance: number
 
   init() {
-    this.accessThirdDimension({ enableXR: false, antialias: false })
+    this.accessThirdDimension()
   }
 
   create() {
-    this.third.warpSpeed('-orbitControls')
+    this.third.warpSpeed()
 
-    let rect = this.add.rectangle(50, 50, 50, 50, 0xff00ff)
-    rect.setInteractive()
-    rect.on('pointerdown', () => {
-      console.log('click')
-    })
+    this.box = this.third.physics.add.box({ y: 5, x: 2 })
+    this.rect = this.add.rectangle(0, 0, 50, 50, 0xff00ff)
 
-    let box = this.third.physics.add.box({ y: 10 })
-
-    // raycaster
-    const onMouseMove = (event: MouseEvent) => {
-      // calculate mouse position in normalized device coordinates
-      // (-1 to +1) for both components
-
-      let raycaster = new THREE.Raycaster()
-      let mouse = new THREE.Vector2()
-
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
-
-      raycaster.setFromCamera(mouse, this.third.camera)
-
-      let intersects = raycaster.intersectObjects(this.third.scene.children)
-
-      console.log('intersects.length', intersects.length)
-
-      for (let i = 0; i < intersects.length; i++) {
-        // console.log('raycast', intersects[i].object)
-        // @ts-ignore
-        intersects[i].object?.material?.color?.set(0xff0000)
-      }
-    }
-
-    window.addEventListener('pointerdown', onMouseMove)
-
-    // remove the event once phaser restarts
-    this.events.on('shutdown', () => {
-      window.removeEventListener('pointerdown', onMouseMove)
-    })
-
-    setTimeout(() => {
-      this.scene.restart()
-    }, 5000)
+    let distance = this.third.camera.position.distanceTo(this.box.position)
+    this.rect.setData('initialDistance', distance)
   }
 
-  update() {}
+  update() {
+    // adjust the size of the rect
+    let distance = this.third.camera.position.distanceTo(this.box.position)
+    let size = this.rect.getData('initialDistance') / distance
+    this.rect.setScale(size)
+
+    // adjust position of the rect
+    let pos = this.third.transform.from3dto2d(this.box.position)
+    this.rect.setPosition(pos.x, pos.y)
+  }
 }
+
+// class MainScene extends Scene3D {
+//   box: ExtendedObject3D
+//   rect: Phaser.GameObjects.Rectangle
+
+//   init() {
+//     this.accessThirdDimension()
+//   }
+
+//   async create() {
+//     await this.third.warpSpeed()
+
+//     this.rect = this.add.rectangle(this.cameras.main.width / 2, this.cameras.main.height / 2, 50, 50, 0xff00ff, 0.5)
+
+//     this.box = this.third.add.box()
+
+//     // adjust position of box with mouse click (will be over written by update())
+//     window.addEventListener('pointerdown', async (event: PointerEvent) => {
+//       const canvas = this.third.renderer.domElement.getBoundingClientRect()
+//       const mouseX = event.clientX - canvas.left
+//       const mouseY = event.clientY - canvas.top
+
+//       const x = (mouseX / canvas.width) * 2 - 1
+//       const y = -(mouseY / canvas.height) * 2 + 1
+
+//       const position = this.third.transform.from2dto3d(x, y, 10)
+//       if (position) {
+//         const { x, y, z } = position
+//         this.box.position.set(x, y, z)
+//       }
+//     })
+//   }
+
+//   update(time: number) {
+//     if (!this.rect) return
+
+//     const speed = 6
+//     const angle = time / 800
+//     const direction = { x: Math.cos(angle), y: Math.sin(angle) }
+//     this.rect.x += speed * direction.x
+//     this.rect.y += speed * direction.y
+
+//     // normalize values
+//     const x = (this.rect.x / this.cameras.main.width) * 2 - 1
+//     const y = -(this.rect.y / this.cameras.main.height) * 2 + 1
+
+//     const position = this.third.transform.from2dto3d(x, y, 10)
+//     if (position) {
+//       const { x, y, z } = position
+//       this.box.position.set(x, y, z)
+//     }
+//   }
+// }
+
+export default MainScene

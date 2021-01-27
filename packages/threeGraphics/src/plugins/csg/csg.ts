@@ -4,14 +4,14 @@
  * @license      {@link https://github.com/enable3d/enable3d/blob/master/LICENSE|GNU GPLv3}
  */
 
-// TODO(yandeu) Replace this CSG lib with one that works with Buffer Geometries.
+// TODO(yandeu) Replace this CSG lib with one that works natively with Buffer Geometries.
 
 // Originally copied from https://github.com/Hi-Level/three-csg
 // which is a typescript rewrite of https://github.com/manthrax/THREE-CSGMesh
 // which as originally written by Copyright (c) 2011 Evan Wallace (http://madebyevan.com/), under the MIT license.
 
 import { Vector3, Geometry, Matrix3, Face3, Mesh, Matrix4, Scene, REVISION } from '@enable3d/three-wrapper/dist/index'
-import Transform from './transform'
+import Transform from '../transform'
 
 /**
  * CSG wrapper for enable3d
@@ -29,6 +29,7 @@ export default class CSGWrapper {
   }
 
   private toBufferGeometry(meshC: Mesh) {
+    // @ts-expect-error
     meshC.geometry = this.transform.geometryToBufferGeometry(meshC.geometry)
   }
 

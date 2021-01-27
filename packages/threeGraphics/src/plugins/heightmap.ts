@@ -30,7 +30,7 @@ export default class HeightMap {
     return heightMap
   }
 
-  public make(texture: Texture, config: HeightMapConfig = {}) {
+  public make(_texture: Texture, _config: HeightMapConfig = {}) {
     // var spacingX = 3
     // var spacingZ = 3
     // var heightOffset = 2

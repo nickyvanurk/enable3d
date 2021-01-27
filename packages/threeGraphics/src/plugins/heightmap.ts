@@ -8,88 +8,88 @@
 
 import {
   Scene,
-  PlaneGeometry,
+  PlaneBufferGeometry,
   MeshPhongMaterial,
-  Mesh,
   Geometry,
   DoubleSide,
   Face3,
   Color,
-  Texture
+  Texture,
+  MeshPhongMaterialParameters,
+  BufferGeometry
 } from '@enable3d/three-wrapper/dist/index'
 import { HeightMapConfig, ExtendedMesh } from '@enable3d/common/dist/types'
-import logger from '@enable3d/common/dist/logger'
+import { fromGeometry } from './csg/_fromGeometry'
 
 export default class HeightMap {
   constructor(private scene: Scene) {}
 
   public add(texture: Texture, config: HeightMapConfig = {}) {
     const heightMap = this.make(texture, config)
+
     if (heightMap) this.scene.add(heightMap)
-    else logger('Could not make heightmap')
+    else console.warn('Could not make heightmap')
+
     return heightMap
   }
 
-  public make(_texture: Texture, _config: HeightMapConfig = {}) {
-    // var spacingX = 3
-    // var spacingZ = 3
-    // var heightOffset = 2
+  public make(texture: Texture, config: HeightMapConfig = {}) {
+    const { image } = texture
+    const { width, height } = image
+    const { colorScale } = config
 
-    return undefined
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
 
-    // const { image } = texture
-    // const { width, height } = image
-    // const { colorScale } = config
+    if (!ctx) return
 
-    // const canvas = document.createElement('canvas')
-    // canvas.width = width
-    // canvas.height = height
-    // const ctx = canvas.getContext('2d')
+    ctx.drawImage(texture.image, 0, 0)
+    const pixel = ctx.getImageData(0, 0, width, height)
 
-    // if (!ctx) return
+    // geometry (convert buffer geometry to deprecated geometry)
+    const plane: any = new Geometry().fromBufferGeometry(new PlaneBufferGeometry(10, 10, width - 1, height - 1))
 
-    // ctx.drawImage(texture.image, 0, 0)
-    // const pixel = ctx.getImageData(0, 0, width, height)
+    // material
+    let materialConfig: MeshPhongMaterialParameters = { color: 0xcccccc, side: DoubleSide }
+    if (colorScale) materialConfig = { ...materialConfig, vertexColors: true }
+    const material = new MeshPhongMaterial(materialConfig)
 
-    // // geometry
-    // const plane = new PlaneGeometry(10, 10, width - 1, height - 1)
+    // mesh
+    const mesh: any = new ExtendedMesh(plane, material)
+    mesh.receiveShadow = mesh.castShadow = true
+    mesh.shape = 'concave'
 
-    // // material
-    // let materialConfig: any = { color: 0xcccccc, side: DoubleSide }
-    // if (colorScale) materialConfig = { ...materialConfig, vertexColors: FaceColors }
-    // const material = new MeshPhongMaterial(materialConfig)
+    // adjust all z values
+    const geo = mesh.geometry as Geometry
+    for (let i = 0; i < geo.vertices.length; i++) {
+      geo.vertices[i].z = pixel.data[i * 4] / 120
+    }
 
-    // // mesh
-    // const mesh = new ExtendedMesh(plane, material)
-    // mesh.receiveShadow = mesh.castShadow = true
-    // mesh.shape = 'concave'
+    // helper function to get the highest point
+    const getHighPoint = (geometry: Geometry, face: Face3) => {
+      var v1 = geometry.vertices[face.a].z
+      var v2 = geometry.vertices[face.b].z
+      var v3 = geometry.vertices[face.c].z
 
-    // // adjust all z values
-    // const geo = mesh.geometry as Geometry
-    // for (let i = 0; i < geo.vertices.length; i++) {
-    //   geo.vertices[i].z = pixel.data[i * 4] / 120
-    // }
+      return Math.max(v1, v2, v3)
+    }
 
-    // // helper function to get the highest point
-    // const getHighPoint = (geometry: Geometry, face: Face3) => {
-    //   var v1 = geometry.vertices[face.a].z
-    //   var v2 = geometry.vertices[face.b].z
-    //   var v3 = geometry.vertices[face.c].z
+    // apply color scale if available
+    if (colorScale) geo.faces.forEach(face => (face.color = new Color(colorScale(getHighPoint(geo, face)).hex())))
 
-    //   return Math.max(v1, v2, v3)
-    // }
+    mesh.rotateX(-Math.PI / 2)
+    mesh.updateMatrix()
 
-    // // apply color scale if available
-    // if (colorScale) geo.faces.forEach(face => (face.color = new Color(colorScale(getHighPoint(geo, face)).hex())))
+    plane.computeFaceNormals()
+    plane.computeVertexNormals()
 
-    // mesh.rotateX(-Math.PI / 2)
-    // mesh.updateMatrix()
+    mesh.name = 'heightmap'
 
-    // plane.computeFaceNormals()
-    // plane.computeVertexNormals()
+    // back to buffer geometry
+    mesh.geometry = fromGeometry(new BufferGeometry(), mesh.geometry)
 
-    // mesh.name = 'heightmap'
-
-    // return mesh
+    return mesh as ExtendedMesh
   }
 }

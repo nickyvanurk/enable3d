@@ -4,6 +4,8 @@
  * @license      {@link https://github.com/enable3d/enable3d/blob/master/LICENSE|GNU GPLv3}
  */
 
+// TODO(yandeu) Replace this CSG lib with one that works with Buffer Geometries.
+
 // Originally copied from https://github.com/Hi-Level/three-csg
 // which is a typescript rewrite of https://github.com/manthrax/THREE-CSGMesh
 // which as originally written by Copyright (c) 2011 Evan Wallace (http://madebyevan.com/), under the MIT license.
@@ -22,14 +24,11 @@ export default class CSGWrapper {
   constructor(private scene: Scene, private transform: Transform) {}
 
   private toGeometry(meshA: Mesh, meshB: Mesh) {
-    // @ts-ignore
     meshA.geometry = this.transform.bufferGeometryToGeometry(meshA.geometry)
-    // @ts-ignore
     meshB.geometry = this.transform.bufferGeometryToGeometry(meshB.geometry)
   }
 
   private toBufferGeometry(meshC: Mesh) {
-    // @ts-ignore
     meshC.geometry = this.transform.geometryToBufferGeometry(meshC.geometry)
   }
 
@@ -162,6 +161,7 @@ class CSG {
     geom.verticesNeedUpdate = geom.elementsNeedUpdate = geom.normalsNeedUpdate = true
     geom.computeBoundingSphere()
     geom.computeBoundingBox()
+    // @ts-expect-error
     const m = new Mesh(geom)
     m.matrix.copy(toMatrix)
     m.matrix.decompose(m.position, m.rotation as any, m.scale)

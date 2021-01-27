@@ -28,16 +28,16 @@ export default class Transform {
 
   constructor(private camera: PerspectiveCamera | OrthographicCamera, private renderer: WebGLRenderer) {}
 
-  public geometryToBufferGeometry(geometry: Geometry | BufferGeometry) {
-    // @ts-ignore
-    if (geometry.isGeometry) return new BufferGeometry().fromGeometry(geometry)
-    else return geometry as BufferGeometry
+  /* @deprecated Will be removed soon */
+  public geometryToBufferGeometry(geometry: any) {
+    if (geometry.isGeometry) return (new BufferGeometry() as any).fromGeometry(geometry)
+    else return geometry as any
   }
 
-  public bufferGeometryToGeometry(bufferGeometry: Geometry | BufferGeometry) {
-    // @ts-ignore
+  /* @deprecated Will be removed soon */
+  public bufferGeometryToGeometry(bufferGeometry: any) {
     if (bufferGeometry.isBufferGeometry) return new Geometry().fromBufferGeometry(bufferGeometry)
-    else return bufferGeometry as Geometry
+    else return bufferGeometry as any
   }
 
   /**

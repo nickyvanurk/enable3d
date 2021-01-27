@@ -685,8 +685,11 @@ class AmmoPhysics extends EventEmitter {
     const btHalfExtents = new Ammo.btVector3()
 
     // transform geometry to bufferGeometry (because three-to-ammo works only with bufferGeometry)
+    // TODO(yandeu) try to remove this soon
+    // @ts-expect-error
     const geometry = object?.geometry as Geometry
     if (object && geometry?.isGeometry) {
+      // @ts-expect-error
       object.geometry = new BufferGeometry().fromGeometry(geometry)
     }
 

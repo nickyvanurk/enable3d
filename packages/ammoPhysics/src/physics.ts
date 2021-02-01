@@ -349,7 +349,7 @@ class AmmoPhysics extends EventEmitter {
           if (objThree.parent) {
             // compatibility fix for three.js >= r123 (Dezember 2020)
             // @ts-ignore
-            if (+REVISION >= 123) this.tmpMatrix4a.copy(objThree.parent.matrixWorld).invert()
+            if (parseInt(REVISION) >= 123) this.tmpMatrix4a.copy(objThree.parent.matrixWorld).invert()
             else this.tmpMatrix4a.getInverse(objThree.parent.matrixWorld)
           } else {
             this.tmpMatrix4a.identity()

@@ -4,8 +4,8 @@ import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry'
 export { ConvexGeometry }
 
 // TODO(yandeu) Remove this soon.
-import { Geometry } from 'three/examples/jsm/deprecated/Geometry'
-export { Geometry }
+import { Geometry, Face3 } from 'three/examples/jsm/deprecated/Geometry'
+export { Geometry, Face3 }
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 export { FBXLoader }
